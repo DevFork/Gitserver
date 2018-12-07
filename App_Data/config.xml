@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<Configuration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <AllowAnonymousPush>false</AllowAnonymousPush>
+  <Repositories>~\App_Data\Repositories</Repositories>
+  <AllowUserRepositoryCreation>false</AllowUserRepositoryCreation>
+  <AllowAnonymousRegistration>false</AllowAnonymousRegistration>
+  <DefaultLanguage>en-US</DefaultLanguage>
+  <SiteTitle>Git Online</SiteTitle>
+  <SiteFooterMessage>Gitonline for AIR</SiteFooterMessage>
+  <IsCommitAuthorAvatarVisible>false</IsCommitAuthorAvatarVisible>
+</Configuration>

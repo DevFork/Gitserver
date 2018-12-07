@@ -1,0 +1,97 @@
+﻿@using Bonobo.Git.Server.Extensions
+@model RepositoryTreeModel
+@{
+    Layout = "~/Views/Repository/_RepositoryLayout.cshtml";
+    ViewBag.Title = Resources.Repository_Tree_Title;
+}
+@if (Model != null)
+{
+    <div class="content">
+        @Html.Partial("_BranchSwitcher")
+        @Html.Partial("_AddressBar")
+
+        <table id="files" class="pure-table">
+            <thead>
+                <tr>
+                    <th>@typeof(RepositoryTreeDetailModel).GetDisplayValue("Name")</th>
+                    <th>@typeof(RepositoryTreeDetailModel).GetDisplayValue("CommitMessage")</th>
+                    <th>@typeof(RepositoryTreeDetailModel).GetDisplayValue("CommitDate")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Files)
+                {
+                    <tr>
+                        <td class="path">
+                            @if (item.IsLink)
+                            {
+                                <span class="directory">@item.Name</span>
+                            }
+                            else
+                            {
+                                @Html.ActionLink(item.Name, item.IsTree ? "Tree" : "Blob", new { encodedPath = PathEncoder.Encode(item.Path, allowSlash: true) }, new { @class = item.IsTree ? "directory" : item.IsImage ? "image" : "file" })
+                            }
+                        </td>
+                        <td class="message"></td>
+                        <td class="date"></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!string.IsNullOrEmpty(Model.Readme))
+        {
+            <!-- <div class="markdown">@Html.MarkdownToHtml(Model.Readme)</div> -->
+            <div id="markedsrc">@Html.Raw(Model.Readme)</div>
+            <script src="~/Scripts/marked.js"></script>
+            <script>
+            document.getElementById('markedsrc').innerHTML = marked(document.getElementById('markedsrc').innerHTML, {
+                gfm: true,
+                tables: true,
+                breaks: false,
+                pedantic: false,
+                sanitize: true,
+                smartLists: true,
+                smartypants: true});
+            hljs.initHighlightingOnLoad();
+            </script>
+        }
+
+        <div class="pure-menu pure-menu-open pure-menu-horizontal repository-menu">
+            <ul>
+                <li><a href="@Url.Action("Download", new { encodedPath = PathEncoder.Encode(Model.Path, allowSlash: true) })"><i class="fa fa-download"></i>@Resources.Repository_Tree_Zip</a></li>
+            </ul>
+        </div>
+    </div>
+}
+
+
+@section scripts
+{
+    <style>
+        #markedsrc{
+            font-family: "微软雅黑";
+        }
+        #markedsrc code{
+            font-size: 13px;
+        }
+        #markedsrc th,td{
+            border: 1px solid #ccc;
+            padding: 3px;
+        }
+    </style>
+    <script>
+        $(function () {
+            var url = '@Url.Action("Tree", ViewContext.RouteData.Values)';
+            $.ajax({ url: url, success: detailsLoaded, type: 'GET', dataType: 'json', cache: false });
+
+            function detailsLoaded(model) {
+                $("#files tbody > tr").each(function (index) {
+                    $(this).find(".message").html(model.Files[index].CommitMessage);
+                    $(this).find(".date").html(model.Files[index].CommitDateString);
+                });
+            }
+        });
+        hljs.configure({tabReplace:'    '});hljs.initHighlightingOnLoad();
+    </script>
+}
